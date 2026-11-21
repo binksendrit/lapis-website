@@ -1,6 +1,6 @@
 # LAPIS Immobilienverwaltung
 
-Private first website version, based on the approved LAPIS Brandbook V1.0 (19 November 2026) and the supplied website briefing. `LAPIS_KI_Designleitfaden_V1.0` was intentionally excluded.
+Private review website, with a second visual direction matching the owner’s supplied architecture mockup. Based on the approved LAPIS Brandbook V1.0 (19 November 2026) and the supplied website briefing. `LAPIS_KI_Designleitfaden_V1.0` was intentionally excluded.
 
 ## Editing and building
 

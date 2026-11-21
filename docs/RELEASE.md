@@ -1,4 +1,10 @@
-# Review version — 21 November 2026
+# Visual redesign V2 — 21 November 2026
+
+The homepage now follows the owner’s supplied visual reference: a large architectural hero, sage and apricot diagonal shapes, stronger typography and two large illustrated feature tiles. New fictional architecture visuals replace rendered stock photos throughout the site. Original LAPIS logo and approved palette are retained. All text, navigation and links remain responsive HTML. The private audience and inquiry behavior are unchanged.
+
+Validation: all eight pages passed local links, anchors, image resources, form-label and no-transmission checks. Browser layouts were checked at 320, 390 and 768 px (24 page/viewport combinations), with no horizontal overflow. Desktop hero and both image tiles were visually inspected; menu toggle and service-tile anchor navigation worked.
+
+## Earlier review version — 21 November 2026
 
 ## Implemented
 
@@ -26,4 +32,3 @@ Service scope checked against SharePoint Leistungskatalog V2.0 (15 November 2026
 - GitHub source: https://github.com/binksendrit/lapis-website
 - Main content transfer verified at commit 3abb133c8adf20d9e5f7187834dc559421cfb560.
 - The website remains owner-private; no public domain cutover was performed.
-

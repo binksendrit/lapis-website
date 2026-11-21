@@ -1,6 +1,19 @@
 # Asset provenance
 
-All source pages and platform license pages checked 21 November 2026. Photos illustrate the subject; they are not LAPIS-managed properties and do not imply endorsement. Responsive WebP derivatives are provided locally.
+## Current V2 visuals — 21 November 2026
+
+The owner explicitly requested a redesign matching the supplied mockup and authorized generated fictional buildings. Two images were created with the built-in image generator. No stock photo is rendered by the current page templates. Both motifs are fictional illustrations, not LAPIS properties or references; the footer, alternative text, captions and image credits disclose this.
+
+| Asset | Output | Use |
+| --- | --- | --- |
+| architecture-v2 | Transparent 1536 × 1024 PNG, responsive WebP at 640/1200/1536 px | Hero and sage feature tile; beige apartment building, dark balcony rails and greenery |
+| entrance-v2 | 1122 × 1402 PNG, responsive WebP at 640/1122 px | Apricot feature tile, editorial sections and subpages; sunlit limestone entry, oak door, black rail and potted tree |
+
+Generation brief: premium natural architectural marketing photography of a fictional contemporary Swiss apartment building; beige limestone, dark slender balcony rails, greenery, diagonally rising roofline, building concentrated on the right, transparent sky for live HTML text on the left. Second image: a quiet sunlit residential entrance in pale limestone with an oak door, dark rail, large window and potted tree. No text, logos or people. Final composition, type, colors and navigation are real responsive HTML/CSS. Pillow was used solely to resize and encode the generated source images; no image editing or compositing was performed.
+
+## Original identity and archived V1 photos
+
+Old photo derivatives remain in the source archive but are no longer referenced by page templates. Original source and license checks were made on 21 November 2026.
 
 | Asset | Creator | Source | License |
 | --- | --- | --- | --- |
@@ -11,4 +24,4 @@ All source pages and platform license pages checked 21 November 2026. Photos ill
 | lapis-logo.png | User-supplied original | Library file libfile_3e3cb66921848191973068fe023009e5 | Supplied for LAPIS website use; bytes unmodified |
 | DM Sans, 400/500/600/700 | Colophon Foundry | Google Fonts distribution, version 17 | SIL Open Font License 1.1; see OFL.txt |
 
-No generated imagery is used. The V0.9 traced logo pack was inspected and its provisional status noted. The original PNG was retrieved instead.
+The V0.9 traced logo pack was inspected and its provisional status noted. The original PNG was retrieved instead.

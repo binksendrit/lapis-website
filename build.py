@@ -33,20 +33,27 @@ def footer():
       <div><h2>Entdecken</h2><a href="/leistungen.html">Leistungen</a><a href="/eigentuemer.html">Für Eigentümer</a><a href="/ueber-uns.html">Über uns</a><a href="/kontakt.html">Kontakt</a></div>
       <div><h2>In der Ostschweiz zu Hause.</h2><p>St. Gallen · Thurgau<br>Appenzell Ausserrhoden<br>Appenzell Innerrhoden</p></div>
     </div><div class="container footer-bottom"><span>© {CONFIG['year']} LAPIS Immobilienverwaltung</span><div><a href="/impressum.html">Impressum & Bildnachweise</a><a href="/datenschutz.html">Datenschutz</a></div></div>
-    <div class="container draft-note">Privater Website-Entwurf · Unternehmens- und Kontaktangaben werden vor dem öffentlichen Start vervollständigt. Die gezeigten Liegenschaften sind illustrative Bilder und keine LAPIS-Referenzen.</div></footer>'''
+    <div class="container draft-note">Privater Website-Entwurf · Unternehmens- und Kontaktangaben werden vor dem öffentlichen Start vervollständigt. Die Architekturmotive sind KI-generierte Visualisierungen und keine LAPIS-Referenzen.</div></footer>'''
 
 def image(name, alt, cls='', eager=False):
-    sizes = [640,1200] + ([1800] if name == 'hero' else [1600] if name == 'residential' else [])
+    sizes = [640,1122] if name == 'entrance-v2' else [640,1200,1536] if name == 'architecture-v2' else [640,1200] + ([1800] if name == 'hero' else [1600] if name == 'residential' else [])
     srcset = ', '.join(f'/assets/{name}-{s}.webp {s}w' for s in sizes)
-    return f'<img class="{cls}" src="/assets/{name}-1200.webp" srcset="{srcset}" sizes="(max-width: 760px) 100vw, 50vw" width="1200" height="900" alt="{escape(alt)}" '+('fetchpriority="high"' if eager else 'loading="lazy"')+' decoding="async">'
+    width,height = (1122,1402) if name == 'entrance-v2' else (1536,1024) if name == 'architecture-v2' else (1200,900)
+    base = 1122 if name == 'entrance-v2' else 1200
+    display_sizes = '(max-width: 680px) 150vw, 100vw' if eager else '(max-width: 760px) 100vw, 50vw'
+    return f'<img class="{cls}" src="/assets/{name}-{base}.webp" srcset="{srcset}" sizes="{display_sizes}" width="{width}" height="{height}" alt="{escape(alt)}" '+('fetchpriority="high"' if eager else 'loading="lazy"')+' decoding="async">'
 
 for key,(title,description) in PAGES.items():
     content = (ROOT / 'src' / f'{key}.html').read_text()
     replacements = {
-      '{{hero_image}}': image('residential','Mehrfamilienhaus mit Backsteinfassade und verglasten Balkonen',eager=key=='index'),
-      '{{detail_image}}': image('facade','Helle Fassade mit geometrischen Fensterelementen in Ascona'),
-      '{{interior_image}}': image('interior','Heller Wohn- und Essbereich mit natürlichem Tageslicht'),
-      '{{existing_image}}': image('hero','Bestehende Wohnliegenschaft mit Balkonen in Montreux'),
+      '{{hero_image}}': image('architecture-v2','KI-generierte Visualisierung eines Mehrfamilienhauses mit hellen Fassaden und Balkonen'),
+      '{{detail_image}}': image('entrance-v2','KI-generierte Visualisierung eines hellen Eingangsbereichs mit Tageslicht'),
+      '{{interior_image}}': image('entrance-v2','KI-generierte Visualisierung eines hellen Eingangsbereichs mit Tageslicht'),
+      '{{existing_image}}': image('architecture-v2','KI-generierte Visualisierung einer Wohnliegenschaft'),
+      '{{architecture_hero}}': image('architecture-v2','KI-generierte Architekturvisualisierung: Mehrfamilienhaus mit Balkonen und begrüntem Umfeld',eager=True),
+      '{{architecture_tile}}': image('architecture-v2','Architekturvisualisierung eines Mehrfamilienhauses'),
+      '{{entrance_tile}}': image('entrance-v2','Architekturvisualisierung eines hellen Eingangsbereichs'),
+      '{{entrance_image}}': image('entrance-v2','KI-generierte Visualisierung: ein heller Hauseingang mit natürlichem Licht'),
     }
     for token,value in replacements.items(): content=content.replace(token,value)
     contact = {k: CONFIG[k] for k in ['email','phone','address','domain']}
