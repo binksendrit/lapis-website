@@ -44,9 +44,12 @@ for name,page in pages.items():
         if u.fragment and target.suffix=='.html':
             if u.fragment not in pages[target.name].ids:errors.append(f'{name}: missing anchor {url}')
 
-css=(ROOT/'assets/styles.css').read_text()
+css_path=ROOT/'assets/styles.css'
+css=css_path.read_text()
 for url in re.findall(r'url\([\'\"]?([^\)\'\"]+)',css):
-    if not url.startswith('data:') and not (ROOT/url.lstrip('/')).is_file():errors.append('Missing CSS resource '+url)
+    if not url.startswith('data:'):
+        target=ROOT/url.lstrip('/') if url.startswith('/') else css_path.parent/url
+        if not target.is_file():errors.append('Missing CSS resource '+url)
 js=(ROOT/'assets/site.js').read_text()
 for forbidden in ['fetch(', 'XMLHttpRequest', 'localStorage', 'sessionStorage', 'document.cookie']:
     assert forbidden not in js,('Unexpected data transmission/storage',forbidden)
