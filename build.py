@@ -1,72 +1,94 @@
 """Build the LAPIS static website. Python standard library only."""
 from pathlib import Path
-import json
 from html import escape
+from hashlib import sha256
+import json
 
 ROOT = Path(__file__).resolve().parent
-CONFIG = json.loads((ROOT / 'site.json').read_text())
 OUT = ROOT / 'dist'
+SITE = json.loads((ROOT / 'site.json').read_text(encoding='utf-8'))
+STYLE_VERSION = sha256((OUT / 'assets' / 'styles.css').read_bytes()).hexdigest()[:12]
 PAGES = {
-    'index': ('Immobilienverwaltung, die entlastet.', 'Persönliche Immobilienverwaltung für private Eigentümer von Mietliegenschaften in der Ostschweiz. Persönlich. Strukturiert. Verlässlich.'),
-    'leistungen': ('Unsere Leistungen', 'Mietliegenschaften bewirtschaften: Administration, Vermietung, Finanzen und Unterhalt. Lernen Sie den vorgesehenen Leistungsumfang von LAPIS kennen.'),
-    'eigentuemer': ('Für Eigentümer', 'Weniger Verwaltungsaufwand und mehr Überblick für private Eigentümer in St. Gallen, Thurgau und Appenzell. So beginnt die Zusammenarbeit mit LAPIS.'),
-    'ueber-uns': ('Über uns', 'LAPIS entsteht als persönliche Immobilienverwaltung von zwei Gründern in der Ostschweiz. Unsere Werte: Verlässlichkeit, Transparenz, Verantwortung und Partnerschaftlichkeit.'),
-    'kontakt': ('Kontakt', 'Bereiten Sie Ihr Erstgespräch mit LAPIS Immobilienverwaltung vor. Erzählen Sie uns von Ihrer Mietliegenschaft und Ihrem Anliegen.'),
-    'impressum': ('Impressum', 'Angaben zur Website von LAPIS Immobilienverwaltung und Bildnachweise.'),
-    'datenschutz': ('Datenschutz', 'Informationen zur Datenbearbeitung in diesem privaten Website-Entwurf von LAPIS Immobilienverwaltung.'),
-    '404': ('Seite nicht gefunden', 'Diese Seite ist nicht vorhanden. Zurück zur Startseite von LAPIS Immobilienverwaltung.')
+    'index': ('Immobilienverwaltung, die entlastet.', 'Persönliche Immobilienverwaltung für private Eigentümer von Mietliegenschaften in der Ostschweiz. Persönlich. Strukturiert. Verlässlich.')
 }
 
 def header(key):
-    nav = [('leistungen', 'Leistungen'), ('eigentuemer', 'Für Eigentümer'), ('ueber-uns', 'Über uns')]
-    links = ''.join(f'<a href="/{p}.html"'+(' aria-current="page"' if key==p else '')+f'>{label}</a>' for p,label in nav)
     return f'''<a class="skip" href="#inhalt">Zum Inhalt</a>
     <header class="site-header"><div class="container header-inner">
       <a class="brand" href="/" aria-label="LAPIS Immobilienverwaltung – Startseite"><img src="/assets/lapis-logo.png" width="1331" height="373" alt="LAPIS Immobilienverwaltung"></a>
-      <button class="menu-toggle" aria-expanded="false" aria-controls="navigation" type="button"><span class="menu-lines" aria-hidden="true"></span><span class="menu-label">Menü</span></button>
-      <nav id="navigation" aria-label="Hauptnavigation">{links}<a class="button button-small" href="/kontakt.html" {'aria-current="page"' if key=='kontakt' else ''}>Kontakt aufnehmen</a></nav>
+      <button class="menu-toggle" type="button" aria-controls="navigation" aria-expanded="false"><span class="menu-label">Menü</span><span class="menu-lines" aria-hidden="true"></span></button>
+      <nav id="navigation" aria-label="Hauptnavigation"><a href="#warum-lapis">Warum LAPIS</a><a href="#leistungen">Leistungen</a><a href="#zusammenarbeit">Zusammenarbeit</a><a class="button button-small" href="#kontakt">Kontakt aufnehmen</a></nav>
     </div></header>'''
 
+def contact_details():
+    email = str(SITE.get('email') or '').strip()
+    phone = str(SITE.get('phone') or '').strip()
+    if not email and not phone:
+        return '<p>Geschäftliche Kontaktangaben folgen vor der Veröffentlichung.</p>'
+    parts = []
+    if email:
+        safe_email = escape(email, quote=True)
+        parts.append(f'<a href="mailto:{safe_email}">{escape(email)}</a>')
+    if phone:
+        safe_phone = escape(phone, quote=True)
+        parts.append(f'<a href="tel:{safe_phone}">{escape(phone)}</a>')
+    return ''.join(parts)
+
 def footer():
-    return f'''<footer class="site-footer"><div class="container footer-top">
-      <div class="footer-brand"><a href="/" aria-label="Zur Startseite"><img src="/assets/lapis-logo.png" alt="LAPIS Immobilienverwaltung" width="1331" height="373" loading="lazy"></a><p>Persönlich. Strukturiert. Verlässlich.</p></div>
-      <div><h2>Entdecken</h2><a href="/leistungen.html">Leistungen</a><a href="/eigentuemer.html">Für Eigentümer</a><a href="/ueber-uns.html">Über uns</a><a href="/kontakt.html">Kontakt</a></div>
-      <div><h2>In der Ostschweiz zu Hause.</h2><p>St. Gallen · Thurgau<br>Appenzell Ausserrhoden<br>Appenzell Innerrhoden</p></div>
-    </div><div class="container footer-bottom"><span>© {CONFIG['year']} LAPIS Immobilienverwaltung</span><div><a href="/impressum.html">Impressum & Bildnachweise</a><a href="/datenschutz.html">Datenschutz</a></div></div>
-    <div class="container draft-note">Privater Website-Entwurf · Unternehmens- und Kontaktangaben werden vor dem öffentlichen Start vervollständigt. Die Architekturmotive sind KI-generierte Visualisierungen und keine LAPIS-Referenzen.</div></footer>'''
+    year = escape(str(SITE.get('year') or 2026))
+    return f'''<footer class="site-footer"><div class="container footer-main-home">
+      <div class="footer-identity"><a href="/" aria-label="LAPIS Immobilienverwaltung – Startseite"><img src="/assets/lapis-logo.png" width="1331" height="373" alt="LAPIS Immobilienverwaltung"></a><p>Persönlich. Strukturiert. Verlässlich.</p></div>
+      <nav aria-label="Footernavigation"><a href="#warum-lapis">Warum LAPIS</a><a href="#leistungen">Leistungen</a><a href="#zusammenarbeit">Zusammenarbeit</a><a href="#kontakt">Kontakt</a></nav>
+      <div class="footer-contact"><strong>Ostschweiz</strong><p>St. Gallen · Thurgau · Appenzell</p>{contact_details()}</div>
+    </div><div class="container footer-bottom-home"><span>© {year} LAPIS Immobilienverwaltung</span><span>Impressum und Datenschutzhinweise: Angaben vor Veröffentlichung ergänzen.</span></div></footer>'''
 
 def image(name, alt, cls='', eager=False):
     sizes = [640,1122] if name == 'entrance-v2' else [640,1200,1536] if name == 'architecture-v2' else [640,1200] + ([1800] if name == 'hero' else [1600] if name == 'residential' else [])
     srcset = ', '.join(f'/assets/{name}-{s}.webp {s}w' for s in sizes)
-    width,height = (1122,1402) if name == 'entrance-v2' else (1536,1024) if name == 'architecture-v2' else (1200,900)
+    dimensions = {
+      'entrance-v2': (1122, 1402),
+      'architecture-v2': (1536, 1024),
+      'facade': (1200, 1690),
+      'hero': (1800, 1200),
+      'interior': (1200, 900),
+      'residential': (1600, 1200),
+    }
+    width,height = dimensions.get(name, (1200,900))
     base = 1122 if name == 'entrance-v2' else 1200
-    display_sizes = '(max-width: 680px) 150vw, 100vw' if eager else '(max-width: 760px) 100vw, 50vw'
+    display_sizes = '(max-width: 680px) calc(100vw - 32px), (max-width: 900px) 55vw, 50vw' if eager else '(max-width: 760px) 100vw, 50vw'
     return f'<img class="{cls}" src="/assets/{name}-{base}.webp" srcset="{srcset}" sizes="{display_sizes}" width="{width}" height="{height}" alt="{escape(alt)}" '+('fetchpriority="high"' if eager else 'loading="lazy"')+' decoding="async">'
 
 for key,(title,description) in PAGES.items():
-    content = (ROOT / 'src' / f'{key}.html').read_text()
+    content = (ROOT / 'src' / f'{key}.html').read_text(encoding='utf-8')
     replacements = {
-      '{{hero_image}}': image('architecture-v2','KI-generierte Visualisierung eines Mehrfamilienhauses mit hellen Fassaden und Balkonen'),
-      '{{detail_image}}': image('entrance-v2','KI-generierte Visualisierung eines hellen Eingangsbereichs mit Tageslicht'),
-      '{{interior_image}}': image('entrance-v2','KI-generierte Visualisierung eines hellen Eingangsbereichs mit Tageslicht'),
-      '{{existing_image}}': image('architecture-v2','KI-generierte Visualisierung einer Wohnliegenschaft'),
-      '{{architecture_hero}}': image('architecture-v2','KI-generierte Architekturvisualisierung: Mehrfamilienhaus mit Balkonen und begrüntem Umfeld',eager=True),
+      '{{hero_image}}': image('architecture-v2','Mehrfamilienhaus mit hellen Fassaden und Balkonen'),
+      '{{detail_image}}': image('entrance-v2','Heller Eingangsbereich mit Tageslicht'),
+      '{{interior_image}}': image('interior','Wohnraum mit grossen Fenstern und natürlichem Licht'),
+      '{{facade_image}}': image('facade','Architektonisches Fassadendetail mit regelmässiger Fensterstruktur'),
+      '{{residential_image}}': image('residential','Wohnliegenschaft mit Balkonen und klarer Fassadengliederung'),
+      '{{existing_image}}': image('architecture-v2','Wohnliegenschaft mit Balkonen und begrüntem Umfeld'),
+      '{{architecture_hero}}': image('architecture-v2','Mehrfamilienhaus mit Balkonen und begrüntem Umfeld',eager=True),
       '{{architecture_tile}}': image('architecture-v2','Architekturvisualisierung eines Mehrfamilienhauses'),
       '{{entrance_tile}}': image('entrance-v2','Architekturvisualisierung eines hellen Eingangsbereichs'),
-      '{{entrance_image}}': image('entrance-v2','KI-generierte Visualisierung: ein heller Hauseingang mit natürlichem Licht'),
+      '{{entrance_image}}': image('entrance-v2','Heller Hauseingang mit natürlichem Licht'),
+      '{{about_image}}': image('hero','Architektonisches Fassadendetail einer Wohnliegenschaft'),
+      '{{contact_details}}': contact_details(),
     }
     for token,value in replacements.items(): content=content.replace(token,value)
-    contact = {k: CONFIG[k] for k in ['email','phone','address','domain']}
-    contact_json = json.dumps(contact,ensure_ascii=False).replace('<','\\u003c')
+    contact_config = json.dumps({'email': SITE.get('email', '')}, ensure_ascii=False).replace('<', '\\u003c')
     html = f'''<!doctype html>
 <html lang="de-CH"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{escape(title)} | LAPIS Immobilienverwaltung</title><meta name="description" content="{escape(description,quote=True)}">
 <meta name="robots" content="noindex, nofollow"><meta name="theme-color" content="#174EA6"><meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="icon" href="/assets/lapis-logo.png" type="image/png"><link rel="preload" href="/assets/dm-sans-400.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="/assets/styles.css"><script src="/assets/site.js" defer></script>
-</head><body data-page="{key}">{header(key)}<main id="inhalt">{content}</main>{footer()}
-<script id="site-contact" type="application/json">{contact_json}</script></body></html>'''
-    (OUT / f'{key}.html').write_text(html)
+<link rel="stylesheet" href="/assets/styles.css?v={STYLE_VERSION}"><script src="/assets/site.js" defer></script>
+</head><body data-page="{key}">{header(key)}<main id="inhalt">{content}</main>{footer()}<script id="site-contact" type="application/json">{contact_config}</script></body></html>'''
+    (OUT / f'{key}.html').write_text(html, encoding='utf-8')
+(OUT / 'kontakt.html').write_text('''<!doctype html>
+<html lang="de-CH"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow"><meta http-equiv="refresh" content="0; url=/#kontakt">
+<title>Kontakt | LAPIS Immobilienverwaltung</title></head>
+<body><main><h1>Kontakt</h1><p>Der Kontaktbereich befindet sich auf der <a href="/#kontakt">Startseite</a>.</p></main></body></html>''', encoding='utf-8')
 (OUT/'robots.txt').write_text('User-agent: *\nDisallow: /\n')
 (OUT/'_headers').write_text('/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n  X-Robots-Tag: noindex, nofollow\n  Content-Security-Policy: default-src \'self\'; img-src \'self\' data:; font-src \'self\'; style-src \'self\'; script-src \'self\'; connect-src \'self\'; object-src \'none\'; base-uri \'self\'; form-action \'self\' mailto:; frame-ancestors \'self\'\n')
 print(f'Built {len(PAGES)} pages in {OUT}')
